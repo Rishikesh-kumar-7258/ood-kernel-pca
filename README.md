@@ -1,5 +1,5 @@
 # Kernel PCA for Out-of-Distribution Detection
-This is the official PyTorch implementation of the NeurIPS'24 paper [Kernel PCA for Out-of-Distribution Detection](https://papers.nips.cc/paper_files/paper/2024/file/f2543511e5f4d4764857f9ad833a977d-Paper-Conference.pdf).
+This is the official PyTorch implementation of the NeurIPS'24 paper [*Kernel PCA for Out-of-Distribution Detection*](https://papers.nips.cc/paper_files/paper/2024/file/f2543511e5f4d4764857f9ad833a977d-Paper-Conference.pdf).
 
 If our work benefits your researches, welcome to cite our paper!
 ```
