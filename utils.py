@@ -6,7 +6,7 @@ import random
 import os
 import sys
 
-sys.path.append("model")
+sys.path.append("/kaggle/working/ood-kernel-pca/model")
 import resnet
 import resnet_supcon
 import imgnet_resnet
