@@ -5,6 +5,8 @@ import torch
 import os
 import sys
 
+sys.path.append("/kaggle/working/ood-kernel-pca")
+
 import argparse
 
 from utils import setup_seed
