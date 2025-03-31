@@ -16,7 +16,7 @@ import torch.nn.functional as F
 import time
 
 # ======== fix data type ========
-torch.set_default_tensor_type(torch.FloatTensor)
+torch.set_default_dtype(torch.float64)
 
 # ======== options ==============
 parser = argparse.ArgumentParser(description='Evaluation on clean samples')
