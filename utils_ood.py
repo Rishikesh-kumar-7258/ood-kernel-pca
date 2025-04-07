@@ -4,12 +4,44 @@ import torch.nn.functional as F
 
 import torchvision as tv
 import torchvision.transforms as transforms
+from torch.utils.data import Dataset
+from PIL import Image
+import xml.etree.ElementTree as ET
 
 import numpy as np
 import sklearn.metrics as sk
 
 import os
 
+
+class CustomImageNetDataset(Dataset):
+    def __init__(self, image_dir, annotation_dir, transform=None):
+        self.image_dir = image_dir
+        self.annotation_dir = annotation_dir
+        self.image_files = [f for f in os.listdir(image_dir) if f.endswith(('.jpg', '.jpeg', '.png'))]
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.image_files)
+
+    def __getitem__(self, idx):
+        image_name = self.image_files[idx]
+        image_path = os.path.join(self.image_dir, image_name)
+        annotation_path = os.path.join(self.annotation_dir, os.path.splitext(image_name)[0] + '.xml')
+
+        image = Image.open(image_path).convert("RGB")
+        label = self._parse_label_from_xml(annotation_path)
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label
+
+    def _parse_label_from_xml(self, xml_path):
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        label = root.find('object').find('name').text
+        return label
 
 def make_id_ood(args):
     """Returns train and validation datasets."""
@@ -38,12 +70,10 @@ def make_id_ood(args):
 
 
     elif args.in_data == 'ImageNet':
-        args.in_datadir = '~/imagenet/ILSVRC2012_img_val'
-        args.in_datadir_train = '~/imagenet/ILSVRC2012_img_train'
-        if args.out_data == 'iNaturalist' or args.out_data == 'SUN' or args.out_data == 'Places':
-            args.out_datadir = "~/data/ood_data/{}".format(args.out_data)
-        elif args.out_data == 'Texture':
-            args.out_datadir = '~/data/ood_data/dtd/images'
+        args.in_datadir = '/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/val'
+        args.in_datadir_train = '/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Data/CLS-LOC/train'
+        if args.out_data == 'inaturalist' or args.out_data == 'sun-datast' or args.out_data == 'places' or args.out_data == 'textures':
+            args.out_datadir = "/kaggle/input/{}".format(args.out_data)
 
         test_transform = transforms.Compose([
             transforms.Resize(256),
@@ -53,9 +83,13 @@ def make_id_ood(args):
                                 std=[0.229, 0.224, 0.225]),
         ])
 
-        in_set = tv.datasets.ImageFolder(args.in_datadir, test_transform)
+        # in_set = tv.datasets.ImageFolder(args.in_datadir, test_transform)
         out_set = tv.datasets.ImageFolder(args.out_datadir, test_transform)
         in_set_train = tv.datasets.ImageFolder(args.in_datadir_train, test_transform)
+
+        in_set = CustomImageNetDataset(image_dir=args.in_datadir, 
+                                       annotation_dir='/kaggle/input/imagenet-object-localization-challenge/ILSVRC/Annotations/CLS-LOC/val',
+                                       transforms=test_transform)
 
     print(f"Using an in-distribution set {args.in_data} with {len(in_set)} images.")
     print(f"Using an out-of-distribution set {args.out_data} with {len(out_set)} images.")

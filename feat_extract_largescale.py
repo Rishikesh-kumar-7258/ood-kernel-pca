@@ -127,6 +127,7 @@ sys.path.insert(0, '/kaggle/working/ood-kernel-pca')
 from utils import setup_seed
 from utils import get_model
 from utils import Logger
+from utils_ood import make_id_ood
 import numpy as np
 import torch.nn.functional as F
 import time
